@@ -124,8 +124,7 @@ public class DefaultSenarioUnitTest : IClassFixture<Context>
 
     public async Task<Bills> UpdateBillsAsync(Bills bills)
     {
-        using var response = await _context.CostServiceClient.PutAsJsonAsync("/api/bills", bills).ConfigureAwait(false);
-        _testOutputHelper.WriteLine(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+        using var response = await _context.CostServiceClient.PutAsJsonAsync("/api/bills", bills, Context.JsonSerializerOptions).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Bills>(Context.JsonSerializerOptions).ConfigureAwait(false))!);
     }
