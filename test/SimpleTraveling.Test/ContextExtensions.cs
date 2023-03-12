@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-using SimpleTraveling.Test.Helpers;
+using SimpleTraveling.Abstractions.Converter;
 
 using Xunit.Abstractions;
 
@@ -10,13 +10,9 @@ public static class ContextExtensions
 {
     public static T WriteLineObject<T>(this ITestOutputHelper testOutputHelper, T t)
     {
-        testOutputHelper.WriteLine(JsonSerializer.Serialize(t, new JsonSerializerOptions
+        testOutputHelper.WriteLine(JsonSerializer.Serialize(t, new JsonSerializerOptions(Context.JsonSerializerOptions)
         {
-            WriteIndented = true,
-            Converters =
-            {
-                new ObjectIdConverter()
-            }
+            WriteIndented = true
         }));
         return t;
     }

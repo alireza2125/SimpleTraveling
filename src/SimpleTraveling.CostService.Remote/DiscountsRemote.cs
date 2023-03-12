@@ -5,7 +5,7 @@ using System.Text.Json;
 using SimpleTraveling.Abstractions;
 using SimpleTraveling.Remote;
 
-namespace SimpleTraveling.TravelService.Remote;
+namespace SimpleTraveling.CostService.Remote;
 
 public class DiscountsRemote : RemoteBase<DiscountsRemote>
 {

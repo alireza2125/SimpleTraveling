@@ -1,6 +1,6 @@
 ﻿using SimpleTraveling.Abstractions;
 
-namespace SimpleTraveling.CostService.Services;
+namespace SimpleTraveling.TravelService.Services;
 
 public class DistanceService
 {

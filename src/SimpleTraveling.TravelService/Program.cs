@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using SimpleTraveling.CostService.Services;
+using SimpleTraveling.CostService.Remote;
 using SimpleTraveling.Remote;
 using SimpleTraveling.TravelService.Data;
-using SimpleTraveling.TravelService.Remote;
+using SimpleTraveling.TravelService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

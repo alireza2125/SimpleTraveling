@@ -28,7 +28,8 @@ public class Bills : BillsBase
 
     public decimal Amount { get; set; }
 
-    [BsonIgnore]
+    public decimal Discount { get; set; }
+
     public decimal FinalAmount { get; set; }
 
     [BsonIgnore]

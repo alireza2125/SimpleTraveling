@@ -24,7 +24,7 @@ public class PassengersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async ValueTask<IActionResult> Create(PassengerBase passenger, CancellationToken cancellationToken = default)
     {
-        Passenger entity = new Passenger
+        Passenger entity = new()
         {
             Firstname = passenger.Firstname,
             Lastname = passenger.Lastname,

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 using MongoDB.Bson;
 
-namespace SimpleTraveling.CostService.Converter;
+namespace SimpleTraveling.Abstractions.Converter;
 
 public class ObjectIdConverter : JsonConverter<ObjectId>
 {

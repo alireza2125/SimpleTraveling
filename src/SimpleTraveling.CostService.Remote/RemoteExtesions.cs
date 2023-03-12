@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using SimpleTraveling.Remote;
 
-namespace SimpleTraveling.TravelService.Remote;
+namespace SimpleTraveling.CostService.Remote;
 
 public static class RemoteExtesions
 {

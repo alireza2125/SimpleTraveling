@@ -1,5 +1,5 @@
-﻿using SimpleTraveling.CostService.Binders;
-using SimpleTraveling.CostService.Converter;
+﻿using SimpleTraveling.Abstractions.Converter;
+using SimpleTraveling.CostService.Binders;
 using SimpleTraveling.CostService.Data;
 using SimpleTraveling.CostService.Services;
 using SimpleTraveling.DriverService.Remote;
@@ -27,9 +27,9 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration.GetConnectionString("redis"));
 
 builder.Services.AddControllers(options =>
-    options.ModelBinderProviders.Insert(0, new ObjectIdModelBinderProvider()))
+    options.ModelBinderProviders.Add(new ObjectIdModelBinderProvider()))
     .AddJsonOptions(options =>
-    options.JsonSerializerOptions.Converters.Insert(0, new ObjectIdConverter()));
+    options.JsonSerializerOptions.Converters.Add(new ObjectIdConverter()));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

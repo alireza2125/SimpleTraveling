@@ -93,7 +93,7 @@ public class DefaultSenarioUnitTest : IClassFixture<Context>
         };
         using var response = await _context.TravelServiceClient.PostAsJsonAsync("/api/passengers", item, Context.JsonSerializerOptions).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Passenger>().ConfigureAwait(false))!);
+        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Passenger>(Context.JsonSerializerOptions).ConfigureAwait(false))!);
     }
 
     public async Task<Travel> CreateTravelAsync(int driverId, int originId, int destinationId)
@@ -106,7 +106,7 @@ public class DefaultSenarioUnitTest : IClassFixture<Context>
         };
         using var response = await _context.TravelServiceClient.PostAsJsonAsync("/api/travels", item, Context.JsonSerializerOptions).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Travel>().ConfigureAwait(false))!);
+        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Travel>(Context.JsonSerializerOptions).ConfigureAwait(false))!);
     }
 
     public async Task<Bills> CreateBillsAsync(int travelId, int passengerId, ObjectId? discountId = null)
@@ -125,6 +125,7 @@ public class DefaultSenarioUnitTest : IClassFixture<Context>
     public async Task<Bills> UpdateBillsAsync(Bills bills)
     {
         using var response = await _context.CostServiceClient.PutAsJsonAsync("/api/bills", bills).ConfigureAwait(false);
+        _testOutputHelper.WriteLine(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
         response.EnsureSuccessStatusCode();
         return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Bills>(Context.JsonSerializerOptions).ConfigureAwait(false))!);
     }

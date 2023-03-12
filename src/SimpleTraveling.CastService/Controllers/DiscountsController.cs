@@ -27,9 +27,9 @@ public class DiscountsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async ValueTask<IActionResult> Create(DiscountBase discount, CancellationToken cancellationToken = default)
     {
-        Discount document = new Discount() { Value = discount.Value };
-        await _dataContext.Discounts.InsertOneAsync(document, null, cancellationToken).ConfigureAwait(false);
-        return CreatedAtAction(nameof(Get), new { document.Id, cancellationToken }, discount);
+        Discount entity = new() { Value = discount.Value };
+        await _dataContext.Discounts.InsertOneAsync(entity, null, cancellationToken).ConfigureAwait(false);
+        return CreatedAtAction(nameof(Get), new { entity.Id, cancellationToken }, entity);
     }
 
     [HttpPut]

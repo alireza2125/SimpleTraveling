@@ -46,16 +46,16 @@ public class BillsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async ValueTask<IActionResult> Create(BillsBase billsBase, CancellationToken cancellationToken = default)
+    public async ValueTask<IActionResult> Create(BillsBase bills, CancellationToken cancellationToken = default)
     {
-        var passenger = await _passengerRemote.GetAsync(billsBase.PassengerId, cancellationToken).ConfigureAwait(false);
+        var passenger = await _passengerRemote.GetAsync(bills.PassengerId, cancellationToken).ConfigureAwait(false);
         if (passenger is null)
         {
             ModelState.AddModelError<BillsBase>(x => x.PassengerId, "not found");
             return BadRequest(ModelState);
         }
 
-        var travel = await _travelRemote.GetAsync(billsBase.TravelId, cancellationToken).ConfigureAwait(false);
+        var travel = await _travelRemote.GetAsync(bills.TravelId, cancellationToken).ConfigureAwait(false);
         if (travel is null)
         {
             ModelState.AddModelError<BillsBase>(x => x.TravelId, "not found");
@@ -63,18 +63,21 @@ public class BillsController : ControllerBase
         }
 
         var discount = await _dataContext.Discounts.AsQueryable()
-            .FirstOrDefaultAsync(x => x.Id == billsBase.DiscountId, cancellationToken)
+            .FirstOrDefaultAsync(x => x.Id == bills.DiscountId, cancellationToken)
             .ConfigureAwait(false);
 
-        Bills bills = new()
+        Bills entity = new()
         {
-            TravelId = billsBase.TravelId,
-            DiscountId = billsBase.DiscountId,
-            PassengerId = billsBase.PassengerId,
-            Amount = _amountService.Calucate(travel) - _discountService.Calucate(discount)
+            TravelId = bills.TravelId,
+            DiscountId = bills.DiscountId,
+            PassengerId = bills.PassengerId,
+            Discount = _discountService.Calucate(discount),
+            Amount = _amountService.Calucate(travel),
         };
-        await _dataContext.Bills.InsertOneAsync(bills, null, cancellationToken).ConfigureAwait(false);
-        return CreatedAtAction(nameof(Get), new { bills.Id, cancellationToken }, bills);
+
+        entity.FinalAmount = entity.Amount - entity.Discount;
+        await _dataContext.Bills.InsertOneAsync(entity, null, cancellationToken).ConfigureAwait(false);
+        return CreatedAtAction(nameof(Get), new { entity.Id, cancellationToken }, entity);
     }
 
     [HttpPut]

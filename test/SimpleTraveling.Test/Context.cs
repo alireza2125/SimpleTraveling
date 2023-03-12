@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc.Testing;
 
-using SimpleTraveling.Test.Helpers;
+using SimpleTraveling.Abstractions.Converter;
 
 namespace SimpleTraveling.Test;
 
@@ -38,8 +38,8 @@ public class Context : IDisposable, IAsyncDisposable
         //TravelServiceClient = TravelService.CreateClient();
         //DriverServiceClient = DriverService.CreateClient();
 
-        CostServiceClient = new HttpClient() { BaseAddress = new("http://localhost:4173/") };
-        TravelServiceClient = new HttpClient() { BaseAddress = new("http://localhost:6234/") };
+        CostServiceClient = new HttpClient() { BaseAddress = new("http://localhost:4234/") };
+        TravelServiceClient = new HttpClient() { BaseAddress = new("http://localhost:5379/") };
         DriverServiceClient = new HttpClient() { BaseAddress = new("http://localhost:5234/") };
     }
 
