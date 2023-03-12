@@ -1,0 +1,20 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "simpletraveling.costservice",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
+      "serviceActions": {
+        "simpletraveling.driverservice": "StartDebugging",
+        "simpletraveling.travelservice": "StartDebugging",
+        "simpletraveling.costservice": "StartDebugging",
+        "mongodb": "StartWithoutDebugging",
+        "mssql": "StartWithoutDebugging",
+        "redis": "StartWithoutDebugging",
+        "simpletraveling.test": "StartDebugging"
+      }
+    }
+  }
+}

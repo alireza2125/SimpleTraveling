@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SimpleTraveling.Test": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

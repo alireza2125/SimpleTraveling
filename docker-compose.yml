@@ -1,0 +1,70 @@
+version: '3.9'
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    restart: always
+    environment:
+      MSSQL_SA_PASSWORD: 'P@ssW0rd!12345'
+      MSSQL_PID: 'Express'
+      ACCEPT_EULA: 'Y'
+
+  redis:
+    image: redis:alpine
+    restart: always
+
+  mongodb:
+    image: mongo
+    restart: always
+
+  simpletraveling.costservice:
+    image: ${DOCKER_REGISTRY-}simpletravelingcastservice
+    restart: always
+    build:
+      context: .
+      dockerfile: src/SimpleTraveling.CastService/Dockerfile
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      ConnectionStrings__mongodb: "mongodb://mongodb:27017"
+      ConnectionStrings__mongodb_database: "simpletraveling"
+      ConnectionStrings__redis: "redis://redis:6379" 
+      ConnectionStrings__driverservice: "http://simpletraveling.driverservice/" 
+      ConnectionStrings__travelservice: "http://simpletraveling.travelservice/" 
+
+  simpletraveling.driverservice:
+    image: ${DOCKER_REGISTRY-}simpletravelingdriverservice
+    restart: always
+    build:
+      context: .
+      dockerfile: src/SimpleTraveling.DriverService/Dockerfile
+    depends_on:
+      - mssql
+      - redis
+    environment:
+      ConnectionStrings__mssql: "Server=mssql,1433;Database=simpletraveling-driverservice;User ID=SA;Password=P@ssW0rd!12345;Encrypt=False;Trusted_Connection=False;MultipleActiveResultSets=true" 
+      ConnectionStrings__redis: "redis://redis:6379" 
+      ConnectionStrings__costservice: "http://simpletraveling.costservice/" 
+      ConnectionStrings__travelservice: "http://simpletraveling.travelservice/" 
+
+  simpletraveling.travelservice:
+    image: ${DOCKER_REGISTRY-}simpletravelingtravelservice
+    restart: always
+    build:
+      context: .
+      dockerfile: src/SimpleTraveling.TravelService/Dockerfile
+    depends_on:
+      - mssql
+      - redis
+    environment:
+      ConnectionStrings__mssql: "Server=mssql,1433;Database=simpletraveling-travelservice;User ID=SA;Password=P@ssW0rd!12345;Encrypt=False;Trusted_Connection=False;MultipleActiveResultSets=true" 
+      ConnectionStrings__redis: "redis://redis:6379" 
+      ConnectionStrings__driverservice: "http://simpletraveling.driverservice/" 
+      ConnectionStrings__costservice: "http://simpletraveling.costservice/" 
+  simpletraveling.test:
+    image: ${DOCKER_REGISTRY-}simpletravelingtest
+    build:
+      context: .
+      dockerfile: test/SimpleTraveling.Test/Dockerfile
+
