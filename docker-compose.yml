@@ -1,4 +1,4 @@
-version: '3.9'
+﻿version: '3.9'
 
 services:
   mssql:
@@ -8,14 +8,20 @@ services:
       MSSQL_SA_PASSWORD: 'P@ssW0rd!12345'
       MSSQL_PID: 'Express'
       ACCEPT_EULA: 'Y'
+    ports:
+      - "1433" 
 
   redis:
     image: redis:alpine
     restart: always
+    ports:
+      - "6379" 
 
   mongodb:
     image: mongo
     restart: always
+    ports:
+      - "27017" 
 
   simpletraveling.costservice:
     image: ${DOCKER_REGISTRY-}simpletravelingcastservice
@@ -32,6 +38,8 @@ services:
       ConnectionStrings__redis: "redis://redis:6379" 
       ConnectionStrings__driverservice: "http://simpletraveling.driverservice/" 
       ConnectionStrings__travelservice: "http://simpletraveling.travelservice/" 
+    ports:
+      - 4234:80
 
   simpletraveling.driverservice:
     image: ${DOCKER_REGISTRY-}simpletravelingdriverservice
@@ -47,6 +55,8 @@ services:
       ConnectionStrings__redis: "redis://redis:6379" 
       ConnectionStrings__costservice: "http://simpletraveling.costservice/" 
       ConnectionStrings__travelservice: "http://simpletraveling.travelservice/" 
+    ports:
+      - 5234:80
 
   simpletraveling.travelservice:
     image: ${DOCKER_REGISTRY-}simpletravelingtravelservice
@@ -62,9 +72,6 @@ services:
       ConnectionStrings__redis: "redis://redis:6379" 
       ConnectionStrings__driverservice: "http://simpletraveling.driverservice/" 
       ConnectionStrings__costservice: "http://simpletraveling.costservice/" 
-  simpletraveling.test:
-    image: ${DOCKER_REGISTRY-}simpletravelingtest
-    build:
-      context: .
-      dockerfile: test/SimpleTraveling.Test/Dockerfile
+    ports:
+      - 6234:80
 

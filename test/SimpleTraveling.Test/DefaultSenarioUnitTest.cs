@@ -25,9 +25,9 @@ public class DefaultSenarioUnitTest : IClassFixture<Context>
     [Fact]
     public async Task Create()
     {
-        // create item
+        // create discount
         var discount = await CreateDiscountAsync();
-        // create location1
+        // create location
         var location1 = await CreateLocationAsync();
         var location2 = await CreateLocationAsync();
         // create driver
@@ -38,38 +38,36 @@ public class DefaultSenarioUnitTest : IClassFixture<Context>
         var passenger = await CreatePassengerAsync();
         // create bills
         var bills = await CreateBillsAsync(travel.Id, passenger.Id, discount.Id);
-        // apply bills
+        // update bills
         bills.Status = BillsStatus.Paid;
         await UpdateBillsAsync(bills);
     }
 
     private async Task<Discount> CreateDiscountAsync()
     {
-        Discount item = new()
+        DiscountBase item = new()
         {
             Value = 0.05m
         };
-        using var response = await _context.CostServiceClient.PostAsJsonAsync("/api/discounts", item).ConfigureAwait(false);
+        using var response = await _context.CostServiceClient.PostAsJsonAsync("/api/discounts", item, Context.JsonSerializerOptions).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        item = (await response.Content.ReadFromJsonAsync<Discount>().ConfigureAwait(false))!;
-        return _testOutputHelper.WriteLineObject(item);
+        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Discount>(Context.JsonSerializerOptions).ConfigureAwait(false))!);
     }
 
     public async Task<Location> CreateLocationAsync()
     {
-        Location item = new()
+        LocationBase item = new()
         {
             Name = Guid.NewGuid().ToString()
         };
-        using var response = await _context.CostServiceClient.PostAsJsonAsync("/api/locations", item).ConfigureAwait(false);
+        using var response = await _context.TravelServiceClient.PostAsJsonAsync("/api/locations", item, Context.JsonSerializerOptions).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        item = (await response.Content.ReadFromJsonAsync<Location>().ConfigureAwait(false))!;
-        return _testOutputHelper.WriteLineObject(item);
+        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Location>(Context.JsonSerializerOptions).ConfigureAwait(false))!);
     }
 
     public async Task<Driver> CreateDriverAsync()
     {
-        Driver item = new()
+        DriverBase item = new()
         {
             Firstname = Guid.NewGuid().ToString(),
             Lastname = Guid.NewGuid().ToString(),
@@ -79,25 +77,23 @@ public class DefaultSenarioUnitTest : IClassFixture<Context>
             PersonalId = Random.Shared.NextInt64(1000000000, 9999999999).ToString(CultureInfo.CurrentCulture),
             PhoneNumber = Random.Shared.NextInt64(1000000000, 9999999999).ToString(CultureInfo.CurrentCulture),
         };
-        using var response = await _context.DriverServiceClient.PostAsJsonAsync("/api/drivers", item).ConfigureAwait(false);
+        using var response = await _context.DriverServiceClient.PostAsJsonAsync("/api/drivers", item, Context.JsonSerializerOptions).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        item = (await response.Content.ReadFromJsonAsync<Driver>().ConfigureAwait(false))!;
-        return _testOutputHelper.WriteLineObject(item);
+        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Driver>(Context.JsonSerializerOptions).ConfigureAwait(false))!);
     }
 
     public async Task<Passenger> CreatePassengerAsync()
     {
-        Passenger item = new()
+        PassengerBase item = new()
         {
             Firstname = Guid.NewGuid().ToString(),
             Lastname = Guid.NewGuid().ToString(),
             PersonalId = Random.Shared.NextInt64(1000000000, 9999999999).ToString(CultureInfo.CurrentCulture),
             PhoneNumber = Random.Shared.NextInt64(1000000000, 9999999999).ToString(CultureInfo.CurrentCulture),
         };
-        using var response = await _context.DriverServiceClient.PostAsJsonAsync("/api/passengers", item).ConfigureAwait(false);
+        using var response = await _context.TravelServiceClient.PostAsJsonAsync("/api/passengers", item, Context.JsonSerializerOptions).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        item = (await response.Content.ReadFromJsonAsync<Passenger>().ConfigureAwait(false))!;
-        return _testOutputHelper.WriteLineObject(item);
+        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Passenger>().ConfigureAwait(false))!);
     }
 
     public async Task<Travel> CreateTravelAsync(int driverId, int originId, int destinationId)
@@ -108,7 +104,7 @@ public class DefaultSenarioUnitTest : IClassFixture<Context>
             OriginId = originId,
             DestinationId = destinationId
         };
-        using var response = await _context.DriverServiceClient.PostAsJsonAsync("/api/passengers", item).ConfigureAwait(false);
+        using var response = await _context.TravelServiceClient.PostAsJsonAsync("/api/travels", item, Context.JsonSerializerOptions).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Travel>().ConfigureAwait(false))!);
     }
@@ -121,16 +117,15 @@ public class DefaultSenarioUnitTest : IClassFixture<Context>
             PassengerId = passengerId,
             DiscountId = discountId,
         };
-        using var response = await _context.DriverServiceClient.PostAsJsonAsync("/api/passengers", item).ConfigureAwait(false);
+        using var response = await _context.CostServiceClient.PostAsJsonAsync("/api/bills", item, Context.JsonSerializerOptions).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Bills>().ConfigureAwait(false))!);
+        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Bills>(Context.JsonSerializerOptions).ConfigureAwait(false))!);
     }
 
     public async Task<Bills> UpdateBillsAsync(Bills bills)
     {
-
-        using var response = await _context.DriverServiceClient.PutAsJsonAsync("/api/passengers", bills).ConfigureAwait(false);
+        using var response = await _context.CostServiceClient.PutAsJsonAsync("/api/bills", bills).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Bills>().ConfigureAwait(false))!);
+        return _testOutputHelper.WriteLineObject((await response.Content.ReadFromJsonAsync<Bills>(Context.JsonSerializerOptions).ConfigureAwait(false))!);
     }
 }

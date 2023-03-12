@@ -28,9 +28,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\SimpleTraveling.Abstractions\SimpleTraveling.Abstractions.csproj" />
-        <ProjectReference Include="..\..\src\SimpleTraveling.CastService\SimpleTraveling.CostService.csproj" />
-        <ProjectReference Include="..\..\src\SimpleTraveling.DriverService\SimpleTraveling.DriverService.csproj" />
-        <ProjectReference Include="..\..\src\SimpleTraveling.TravelService\SimpleTraveling.TravelService.csproj" />
     </ItemGroup>
 
 </Project>

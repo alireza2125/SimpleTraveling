@@ -21,19 +21,25 @@ public class PassengersController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async ValueTask<IActionResult> CreateAsync(Passenger passenger, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async ValueTask<IActionResult> Create(PassengerBase passenger, CancellationToken cancellationToken = default)
     {
-        await _dataContext.AddAsync(passenger, cancellationToken).ConfigureAwait(false);
+        Passenger entity = new Passenger
+        {
+            Firstname = passenger.Firstname,
+            Lastname = passenger.Lastname,
+            PersonalId = passenger.PersonalId,
+            PhoneNumber = passenger.PhoneNumber
+        };
+        await _dataContext.AddAsync(entity, cancellationToken).ConfigureAwait(false);
         await _dataContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return CreatedAtAction(nameof(GetAsync), new { passenger.Id, cancellationToken }, passenger);
+        return CreatedAtAction(nameof(Ge), new { entity.Id, cancellationToken }, entity);
     }
 
     [HttpPut]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async ValueTask<IActionResult> UpdateAsync(Passenger passenger, CancellationToken cancellationToken = default)
+    public async ValueTask<IActionResult> Update(Passenger passenger, CancellationToken cancellationToken = default)
     {
 
         if (await _dataContext.Passengers.AllAsync(x => x.Id != passenger.Id, cancellationToken).ConfigureAwait(false))
@@ -42,13 +48,13 @@ public class PassengersController : ControllerBase
         passenger.Id = default;
         _dataContext.Update(passenger);
         await _dataContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return AcceptedAtAction(nameof(GetAsync), new { passenger.Id, cancellationToken }, passenger);
+        return AcceptedAtAction(nameof(Ge), new { passenger.Id, cancellationToken }, passenger);
     }
 
     [HttpDelete("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async ValueTask<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async ValueTask<IActionResult> Delete(int id, CancellationToken cancellationToken = default)
     {
         var passenger = await _dataContext.Passengers.FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
         if (passenger is null)
@@ -60,13 +66,14 @@ public class PassengersController : ControllerBase
     }
 
     [HttpGet]
-    public IAsyncEnumerable<Passenger> GetAsync(int skip = 0, [Range(25, 100)] int take = 25) =>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IAsyncEnumerable<Passenger> Ge(int skip = 0, [Range(25, 100)] int take = 25) =>
         _dataContext.Passengers.AsNoTracking().Skip(skip).Take(take).AsAsyncEnumerable();
 
-    [HttpDelete("{id:int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async ValueTask<ActionResult<Passenger>> GetAsync(int id, CancellationToken cancellationToken = default)
+    public async ValueTask<ActionResult<Passenger>> Ge(int id, CancellationToken cancellationToken = default)
     {
         var passenger = await _dataContext.Passengers.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)

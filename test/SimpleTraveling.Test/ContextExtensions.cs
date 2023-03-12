@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
 
+using SimpleTraveling.Test.Helpers;
+
 using Xunit.Abstractions;
 
 namespace SimpleTraveling.Test;
@@ -10,7 +12,11 @@ public static class ContextExtensions
     {
         testOutputHelper.WriteLine(JsonSerializer.Serialize(t, new JsonSerializerOptions
         {
-            WriteIndented = true
+            WriteIndented = true,
+            Converters =
+            {
+                new ObjectIdConverter()
+            }
         }));
         return t;
     }

@@ -1,24 +1,46 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿using System.Text.Json;
+
+using Microsoft.AspNetCore.Mvc.Testing;
+
+using SimpleTraveling.Test.Helpers;
 
 namespace SimpleTraveling.Test;
 
 public class Context : IDisposable, IAsyncDisposable
 {
+    public static JsonSerializerOptions JsonSerializerOptions { get; } = new()
+    {
+        PropertyNameCaseInsensitive = false,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = {
+            new ObjectIdConverter()
+        }
+    };
+
     private bool _disposedValue;
 
-    public WebApplicationFactory<CostService.Program> CostService { get; } = new();
-    public HttpClient CostServiceClient { get; } = new();
-    public WebApplicationFactory<TravelService.Program> TravelService { get; } = new();
+    //public WebApplicationFactory<CostService.Program> CostService { get; } = null!;
+    //public WebApplicationFactory<TravelService.Program> TravelService { get; } = null!;
+    //public WebApplicationFactory<DriverService.Program> DriverService { get; } = null!;
+
+    public HttpClient CostServiceClient { get; }
     public HttpClient TravelServiceClient { get; }
-    public WebApplicationFactory<DriverService.Program> DriverService { get; } = new();
     public HttpClient DriverServiceClient { get; }
 
     public Context()
     {
-        CostServiceClient = CostService.CreateClient();
-        TravelServiceClient = TravelService.CreateClient();
-        DriverServiceClient = DriverService.CreateClient();
 
+        //CostService = new();
+        //TravelService = new();
+        //DriverService = new();
+
+        //CostServiceClient = CostService.CreateClient();
+        //TravelServiceClient = TravelService.CreateClient();
+        //DriverServiceClient = DriverService.CreateClient();
+
+        CostServiceClient = new HttpClient() { BaseAddress = new("http://localhost:4173/") };
+        TravelServiceClient = new HttpClient() { BaseAddress = new("http://localhost:6234/") };
+        DriverServiceClient = new HttpClient() { BaseAddress = new("http://localhost:5234/") };
     }
 
     public async ValueTask DisposeAsync()
@@ -29,9 +51,13 @@ public class Context : IDisposable, IAsyncDisposable
 
     public async ValueTask DisposeAsyncCore()
     {
-        await CostService.DisposeAsync().ConfigureAwait(false);
-        await TravelService.DisposeAsync().ConfigureAwait(false);
-        await DriverService.DisposeAsync().ConfigureAwait(false);
+        await ValueTask.CompletedTask;
+        //if (CostService is not null)
+        //    await CostService.DisposeAsync().ConfigureAwait(false);
+        //if (TravelService is not null)
+        //    await TravelService.DisposeAsync().ConfigureAwait(false);
+        //if (DriverService is not null)
+        //    await DriverService.DisposeAsync().ConfigureAwait(false);
     }
 
     protected virtual void Dispose(bool disposing)
@@ -40,9 +66,13 @@ public class Context : IDisposable, IAsyncDisposable
         {
             if (disposing)
             {
-                CostService.Dispose();
-                TravelService.Dispose();
-                DriverService.Dispose();
+                //CostService?.Dispose();
+                //TravelService?.Dispose();
+                //DriverService?.Dispose();
+
+                CostServiceClient.Dispose();
+                TravelServiceClient.Dispose();
+                DriverServiceClient.Dispose();
             }
 
             _disposedValue = true;

@@ -19,17 +19,23 @@ public class DriversController : ControllerBase
     }
 
     [HttpGet]
-    public IAsyncEnumerable<Driver> GetAsync() => _context.Driver.AsNoTracking().AsAsyncEnumerable();
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IAsyncEnumerable<Driver> Get() => _context.Driver.AsNoTracking().AsAsyncEnumerable();
 
     [HttpGet("{id:int}")]
-    public async ValueTask<ActionResult<Driver>> GetAsync(int id, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async ValueTask<ActionResult<Driver>> Get(int id, CancellationToken cancellationToken = default)
     {
         var driver = await _context.Driver.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         return driver == null ? NotFound() : driver;
     }
 
-    public async Task<IActionResult> UpdateAsync(Driver driver, CancellationToken cancellationToken = default)
+    [HttpPut]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(Driver driver, CancellationToken cancellationToken = default)
     {
         if (await _context.Driver.AllAsync(x => x.Id == driver.Id, cancellationToken).ConfigureAwait(false))
         {
@@ -43,15 +49,30 @@ public class DriversController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Driver>> CreateAsync(Driver driver, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Driver>> Create(DriverBase driver, CancellationToken cancellationToken = default)
     {
-        await _context.Driver.AddAsync(driver, cancellationToken).ConfigureAwait(false);
+        var entity = new Driver
+        {
+            CarBrand = driver.CarBrand,
+            CarModel = driver.CarModel,
+            Firstname = driver.Firstname,
+            Lastname = driver.Lastname,
+            LicensePlate = driver.LicensePlate,
+            PersonalId = driver.PersonalId,
+            PhoneNumber = driver.PhoneNumber
+        };
+
+        await _context.Driver.AddAsync(entity, cancellationToken).ConfigureAwait(false);
         await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return CreatedAtAction(nameof(GetAsync), new { id = driver.Id, cancellationToken }, driver);
+        return CreatedAtAction(nameof(Get), new { id = entity.Id, cancellationToken }, entity);
     }
 
     [HttpDelete("{id:int}")]
-    public async ValueTask<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async ValueTask<IActionResult> Delete(int id, CancellationToken cancellationToken = default)
     {
         var driver = await _context.Driver.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (driver == null)

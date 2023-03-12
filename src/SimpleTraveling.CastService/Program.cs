@@ -13,6 +13,12 @@ builder.Services.AddRemoteService()
     .AddTravelsRemote()
     .AddDriversRemote();
 
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true;
+    options.LowercaseQueryStrings = true;
+});
+
 builder.Services.AddSingleton<DiscountService>();
 builder.Services.AddSingleton<AmountService>();
 
@@ -23,7 +29,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 builder.Services.AddControllers(options =>
     options.ModelBinderProviders.Insert(0, new ObjectIdModelBinderProvider()))
     .AddJsonOptions(options =>
-    options.JsonSerializerOptions.Converters.Add(new ObjectIdConverter()));
+    options.JsonSerializerOptions.Converters.Insert(0, new ObjectIdConverter()));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -35,8 +41,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

@@ -3,24 +3,27 @@ using System.Text.Json.Serialization;
 
 namespace SimpleTraveling.Abstractions;
 
-public class Passenger
+public class PassengerBase
 {
-    [Key]
-    public int Id { get; set; }
+    [Required]
+    public string Firstname { get; set; } = string.Empty;
 
     [Required]
-    public required string Firstname { get; set; }
-
-    [Required]
-    public required string Lastname { get; set; }
+    public string Lastname { get; set; } = string.Empty;
 
     [Required]
     [RegularExpression("\\d{3}-?\\d{3}-?\\d{4}")]
-    public required string PersonalId { get; set; }
+    public string PersonalId { get; set; } = string.Empty;
 
     [Phone]
     [Required]
-    public required string PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; } = string.Empty;
+}
+
+public class Passenger : PassengerBase
+{
+    [Key]
+    public int Id { get; set; }
 
     [JsonIgnore]
     public List<Travel> Travels { get; } = new();

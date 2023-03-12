@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -43,7 +44,9 @@ public class BillsController : ControllerBase
     }
 
     [HttpPost]
-    public async ValueTask<IActionResult> CreateAsync(BillsBase billsBase, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async ValueTask<IActionResult> Create(BillsBase billsBase, CancellationToken cancellationToken = default)
     {
         var passenger = await _passengerRemote.GetAsync(billsBase.PassengerId, cancellationToken).ConfigureAwait(false);
         if (passenger is null)
@@ -71,11 +74,14 @@ public class BillsController : ControllerBase
             Amount = _amountService.Calucate(travel) - _discountService.Calucate(discount)
         };
         await _dataContext.Bills.InsertOneAsync(bills, null, cancellationToken).ConfigureAwait(false);
-        return CreatedAtAction(nameof(GetAsync), new { bills.Id, cancellationToken }, bills);
+        return CreatedAtAction(nameof(Get), new { bills.Id, cancellationToken }, bills);
     }
 
     [HttpPut]
-    public async ValueTask<IActionResult> UpdateAsync(Bills bills, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async ValueTask<IActionResult> Update(Bills bills, CancellationToken cancellationToken = default)
     {
         bills.Passenger = await _passengerRemote.GetAsync(bills.PassengerId, cancellationToken).ConfigureAwait(false);
         if (bills.Passenger is null)
@@ -111,11 +117,13 @@ public class BillsController : ControllerBase
 
         var result = await _dataContext.Bills
             .ReplaceOneAsync(x => x.Id == bills.Id, bills, cancellationToken: cancellationToken).ConfigureAwait(false);
-        return result.IsAcknowledged ? AcceptedAtAction(nameof(GetAsync), new { bills.Id, cancellationToken }, bills) : NotFound();
+        return result.IsAcknowledged ? AcceptedAtAction(nameof(Get), new { bills.Id, cancellationToken }, bills) : NotFound();
     }
 
     [HttpDelete("{id}")]
-    public async ValueTask<IActionResult> RemoveAsync(ObjectId id, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async ValueTask<IActionResult> Remove(ObjectId id, CancellationToken cancellationToken = default)
     {
         var result = await _dataContext.Bills
             .DeleteOneAsync(x => x.Id == id, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -123,7 +131,9 @@ public class BillsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async ValueTask<ActionResult<Bills>> GetAsync(ObjectId id, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async ValueTask<ActionResult<Bills>> Get(ObjectId id, CancellationToken cancellationToken = default)
     {
         var result = await _dataContext.Bills.AsQueryable().
             FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
@@ -131,6 +141,7 @@ public class BillsController : ControllerBase
     }
 
     [HttpGet]
-    public IAsyncEnumerable<Bills> GetAsync(int skip = 0, [Range(25, 100)] int take = 25) =>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IAsyncEnumerable<Bills> Get(int skip = 0, [Range(25, 100)] int take = 25) =>
         _dataContext.Bills.AsQueryable().Skip(skip).Take(take).ToAsyncEnumerable();
 }

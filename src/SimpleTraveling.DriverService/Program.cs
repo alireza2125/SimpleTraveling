@@ -4,6 +4,12 @@ using SimpleTraveling.DriverService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true;
+    options.LowercaseQueryStrings = true;
+});
+
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("mssql")));
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -15,13 +21,16 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+await using (var asyncScope = app.Services.CreateAsyncScope())
+{
+    await asyncScope.ServiceProvider.GetRequiredService<DataContext>().Database.MigrateAsync().ConfigureAwait(false);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
